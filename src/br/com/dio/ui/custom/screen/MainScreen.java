@@ -29,7 +29,7 @@ import static javax.swing.JOptionPane.showMessageDialog;
 
 public class MainScreen {
 
-    private final static Dimension dimension = new Dimension(600, 600);
+    private final static Dimension dimension = new Dimension(700, 700);
 
     private final BoardService boardService;
     private final NotifierService notifierService;
@@ -75,8 +75,14 @@ public class MainScreen {
     }
 
     private JPanel generateSection(final List<Space> spaces){
-        List<NumberText> fields = new ArrayList<>(spaces.stream().map(NumberText::new).toList());
-        fields.forEach(t -> notifierService.subscribe(CLEAR_SPACE, t));
+        List<NumberText> fields = new ArrayList<>();
+
+        for (Space space : spaces) {
+            NumberText field = new NumberText(space, boardService);
+            notifierService.subscribe(CLEAR_SPACE, field);
+            fields.add(field);
+        }
+
         return new SudokuSector(fields);
     }
 

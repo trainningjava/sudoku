@@ -1,6 +1,7 @@
 package br.com.dio.ui.custom.input;
 
 import br.com.dio.model.Space;
+import br.com.dio.service.BoardService;
 import br.com.dio.service.EventEnum;
 import br.com.dio.service.EventListener;
 
@@ -16,9 +17,11 @@ import static java.awt.Font.PLAIN;
 public class NumberText extends JTextField implements EventListener {
 
     private final Space space;
+    private final BoardService boardService;
 
-    public NumberText(final Space space) {
+    public NumberText(final Space space, final BoardService boardService) {
         this.space = space;
+        this.boardService = boardService;
         var dimension = new Dimension(50, 50);
         this.setSize(dimension);
         this.setPreferredSize(dimension);
@@ -47,14 +50,29 @@ public class NumberText extends JTextField implements EventListener {
                 changeSpace();
             }
 
-            private void changeSpace(){
-                if (getText().isEmpty()){
+            private void changeSpace() {
+                if (getText().isEmpty()) {
                     space.clearSpace();
                     return;
                 }
-                space.setActual(Integer.parseInt(getText()));
-            }
+                Integer oldValue = space.getActual();
 
+                space.setActual(Integer.parseInt(getText()));
+
+                if (!boardService.isBoardValid()) {
+
+                    space.setActual(oldValue);
+
+                    javax.swing.SwingUtilities.invokeLater(() -> {
+                        setText(oldValue == null ? "" : oldValue.toString());
+
+                        javax.swing.JOptionPane.showMessageDialog(
+                                null,
+                                "Movimento inválido pelas regras do Sudoku."
+                        );
+                    });
+                }
+            }
         });
     }
 
